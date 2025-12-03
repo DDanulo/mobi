@@ -1,5 +1,6 @@
 package com.donchik.akadeska.ui
 
+import android.app.Application
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
@@ -16,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -48,6 +50,8 @@ import com.donchik.akadeska.presentation.shop.ShopVmFactory
 import kotlinx.coroutines.launch
 import navigation.Screen
 import com.donchik.akadeska.R
+import com.donchik.akadeska.com.donchik.akadeska.presentation.drawer.DrawerViewModel
+import com.donchik.akadeska.com.donchik.akadeska.presentation.drawer.DrawerVmFactory
 import com.donchik.akadeska.presentation.shopItemDetail.ShopDetailsScreen
 import com.donchik.akadeska.presentation.shopItemDetail.ShopDetailsViewModel
 import com.donchik.akadeska.presentation.shopItemDetail.ShopDetailsVmFactory
@@ -62,21 +66,35 @@ fun MainScaffold() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val adminGateVm: AdminGateViewModel = viewModel(factory = AdminGateVmFactory(AppGraph.repo))
-    val isAdmin by adminGateVm.isAdmin.collectAsState()
+//    val adminGateVm: AdminGateViewModel = viewModel(factory = AdminGateVmFactory(AppGraph.repo))
+//    val isAdmin by adminGateVm.isAdmin.collectAsState()
+
+    // --- UPDATED VIEWMODEL ---
+    val context = LocalContext.current.applicationContext as Application
+    val drawerVm: DrawerViewModel = viewModel(
+        factory = DrawerVmFactory(context, AppGraph.repo)
+    )
+
+    val isAdmin by drawerVm.isAdmin.collectAsState()
+    val notificationsEnabled by drawerVm.areNotificationsEnabled.collectAsState()
+    // -------------------------
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             DrawerContent(
                 isAdmin = isAdmin,
+                notificationsEnabled = notificationsEnabled, // <--- Pass State
+                onToggleNotifications = { enabled ->         // <--- Pass Action
+                    drawerVm.toggleNotifications(enabled)
+                },
                 onOpenAdmin = {
                     scope.launch { drawerState.close() }
                     navController.navigate(Screen.Admin.route)
                 },
                 onOpenArchive = {
                     scope.launch { drawerState.close() }
-                    navController.navigate("archive") // Navigate to new route
+                    navController.navigate(Screen.Archive.route)
                 }
             )
         }

@@ -25,12 +25,12 @@ fun AuthScreen(
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
             value = state.email, onValueChange = vm::setEmail,
-            label = { stringResource(R.string.email) }, singleLine = true, modifier = Modifier.fillMaxWidth()
+            label = { Text(stringResource(R.string.email)) }, singleLine = true, modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = state.password, onValueChange = vm::setPassword,
-            label = { stringResource(R.string.password) }, singleLine = true, visualTransformation = PasswordVisualTransformation(),
+            label = { Text(stringResource(R.string.password)) }, singleLine = true, visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
         if (state.error != null) {
@@ -43,11 +43,11 @@ fun AuthScreen(
             enabled = !state.loading,
             modifier = Modifier.fillMaxWidth()
         ) {
-            stringResource(if (state.loading) R.string.please_wait else if (state.mode == AuthMode.SIGN_IN) R.string.sign_in else R.string.sign_up)
+            Text(stringResource(if (state.loading) R.string.please_wait else if (state.mode == AuthMode.SIGN_IN) R.string.sign_in else R.string.sign_up))
         }
 
         TextButton(onClick = vm::switchMode, modifier = Modifier.padding(top = 8.dp)) {
-            stringResource(if (state.mode == AuthMode.SIGN_IN) R.string.no_account else R.string.have_account)
+            Text(stringResource(if (state.mode == AuthMode.SIGN_IN) R.string.no_account else R.string.have_account))
         }
     }
 }

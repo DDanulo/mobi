@@ -321,4 +321,12 @@ class FirebaseRepository(
         return reservedUntil.seconds > Timestamp.now().seconds
     }
 
+    fun subscribeToTopic(topic: String) {
+        messaging.subscribeToTopic(topic)
+    }
+
+    fun unsubscribeFromTopic(topic: String) {
+        messaging.unsubscribeFromTopic(topic)
+    }
+
 }

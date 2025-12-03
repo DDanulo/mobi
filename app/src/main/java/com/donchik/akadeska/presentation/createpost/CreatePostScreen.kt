@@ -53,7 +53,7 @@ fun CreatePostScreen(
                 value = state.type.name,
                 onValueChange = {},
                 readOnly = true,
-                label = { stringResource(R.string.cp_type) },
+                label = { Text(stringResource(R.string.cp_type)) },
                 modifier = Modifier.menuAnchor().fillMaxWidth()
             )
             ExposedDropdownMenu(expanded, onDismissRequest = { expanded = false }) {

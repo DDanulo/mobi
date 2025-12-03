@@ -34,7 +34,7 @@ fun AdminScreen(vm: AdminViewModel, onBack: () -> Unit) {
     if (!isAdmin) {
         // guard
         Column(Modifier.fillMaxSize().padding(16.dp)) {
-            stringResource(R.string.no_admin_access)
+            Text(stringResource(R.string.no_admin_access))
             Spacer(Modifier.height(8.dp))
             Button(onClick = onBack) { Text("Back") }
         }
@@ -53,8 +53,8 @@ fun AdminScreen(vm: AdminViewModel, onBack: () -> Unit) {
                         Text(it.title, style = MaterialTheme.typography.titleMedium)
                         Text(it.type, style = MaterialTheme.typography.labelMedium)
                         Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { vm.approve(it.id) }) { stringResource(R.string.btn_approve) }
-                            OutlinedButton(onClick = { vm.reject(it.id) }) { stringResource(R.string.btn_reject) }
+                            Button(onClick = { vm.approve(it.id) }) { Text(stringResource(R.string.btn_approve)) }
+                            OutlinedButton(onClick = { vm.reject(it.id) }) { Text(stringResource(R.string.btn_reject)) }
                         }
                     }
                 }
