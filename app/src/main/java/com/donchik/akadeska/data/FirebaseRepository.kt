@@ -25,6 +25,15 @@ data class FeedItem(
     val imageUrl: String?
 )
 
+data class ShopItem(
+    val id: String,
+    val title: String,
+    val description: String,
+    val price: Double?,
+    val imageUrl: String?,
+    val sellerId: String?
+)
+
 data class PostDetails(
     val id: String,
     val type: String,
@@ -55,7 +64,7 @@ fun DocumentReference.snapshotsFlow() = callbackFlow {
 }
 
 class FirebaseRepository(
-    private val auth: FirebaseAuth,
+    val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
     private val storage: FirebaseStorage
 ) {
@@ -178,4 +187,80 @@ class FirebaseRepository(
                     createdAt = d.getTimestamp("createdAt")
                 )
             }
+    private fun getCutoffTimestamp(): Timestamp {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.add(java.util.Calendar.DAY_OF_YEAR, -14)
+        return Timestamp(calendar.time)
+    }
+
+    // 2. Modified: Only shows posts NEWER than 14 days
+    fun observeRecentPosts(): Flow<List<FeedItem>> {
+        val cutoff = getCutoffTimestamp()
+        return db.collection("posts")
+            .whereEqualTo("status", "approved")
+            .whereIn("type", listOf("INFO", "EVENT"))
+            .whereGreaterThan("createdAt", cutoff) // > 14 days ago
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .snapshotsFlow()
+            .map { qs ->
+                qs.documents.map { d ->
+                    FeedItem(
+                        id = d.id,
+                        title = d.getString("title") ?: "(no title)",
+                        imageUrl = d.getString("imageUrl")
+                    )
+                }
+            }
+    }
+
+    // 3. New: Only shows posts OLDER than 14 days
+    fun observeArchivedPosts(): Flow<List<FeedItem>> {
+        val cutoff = getCutoffTimestamp()
+        return db.collection("posts")
+            .whereEqualTo("status", "approved")
+            .whereIn("type", listOf("INFO", "EVENT"))
+            .whereLessThan("createdAt", cutoff) // < 14 days ago
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .snapshotsFlow()
+            .map { qs ->
+                qs.documents.map { d ->
+                    FeedItem(
+                        id = d.id,
+                        title = d.getString("title") ?: "(no title)",
+                        imageUrl = d.getString("imageUrl")
+                    )
+                }
+            }
+    }
+
+    suspend fun updateUserName(name: String): Result<Unit> = runCatching {
+        val user = auth.currentUser ?: error("Not signed in")
+        val updates = com.google.firebase.auth.userProfileChangeRequest {
+            displayName = name
+        }
+        user.updateProfile(updates).await()
+    }
+
+    fun observeShopListings(): Flow<List<ShopItem>> {
+        // We filter by approved status and type LISTING
+        return db.collection("posts")
+            .whereEqualTo("status", "approved")
+            .whereEqualTo("type", "LISTING")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .snapshotsFlow()
+            .map { qs ->
+                qs.documents.map { d ->
+                    ShopItem(
+                        id = d.id,
+                        title = d.getString("title") ?: "",
+                        description = d.getString("body") ?: "",
+                        price = d.getDouble("price"),
+                        imageUrl = d.getString("imageUrl"),
+                        sellerId = d.getString("createdBy")
+                    )
+                }
+            }
+    }
+
+
 }

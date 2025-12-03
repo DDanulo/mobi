@@ -31,6 +31,7 @@ import com.donchik.akadeska.presentation.admin.AdminVmFactory
 import com.donchik.akadeska.presentation.auth.AuthScreen
 import com.donchik.akadeska.presentation.auth.AuthViewModel
 import com.donchik.akadeska.presentation.auth.AuthVmFactory
+import com.donchik.akadeska.presentation.chat.ChatDetailScreen
 import com.donchik.akadeska.presentation.createpost.CreatePostScreen
 import com.donchik.akadeska.presentation.createpost.CreatePostViewModel
 import com.donchik.akadeska.presentation.createpost.CreatePostVmFactory
@@ -40,6 +41,9 @@ import com.donchik.akadeska.presentation.details.DetailsVmFactory
 import com.donchik.akadeska.presentation.home.HomeScreen
 import com.donchik.akadeska.presentation.home.HomeViewModel
 import com.donchik.akadeska.presentation.home.HomeVmFactory
+import com.donchik.akadeska.presentation.shop.ShopScreen
+import com.donchik.akadeska.presentation.shop.ShopViewModel
+import com.donchik.akadeska.presentation.shop.ShopVmFactory
 import kotlinx.coroutines.launch
 import navigation.Screen
 
@@ -53,7 +57,6 @@ fun MainScaffold() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // admin gate
     val adminGateVm: AdminGateViewModel = viewModel(factory = AdminGateVmFactory(AppGraph.repo))
     val isAdmin by adminGateVm.isAdmin.collectAsState()
 
@@ -65,6 +68,10 @@ fun MainScaffold() {
                 onOpenAdmin = {
                     scope.launch { drawerState.close() }
                     navController.navigate(Screen.Admin.route)
+                },
+                onOpenArchive = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate("archive") // Navigate to new route
                 }
             )
         }
@@ -81,18 +88,25 @@ fun MainScaffold() {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { AppGraph.repo.signOut() }) {
-                            Icon(Icons.Default.Person, contentDescription = "Sign out")
+//                        IconButton(onClick = { AppGraph.repo.signOut() }) {
+//                            Icon(Icons.Default.Person, contentDescription = "Sign out")
+//                        }
+                        IconButton(onClick = {
+                            navController.navigate(Screen.Profile.route)
+                        }) {
+                            Icon(Icons.Default.Person, contentDescription = "Profile")
                         }
                     }
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = {
-                    val isSignedIn = AppGraph.repo.currentUser != null
-                    if (isSignedIn) navController.navigate(Screen.CreatePost.route)
-                    else navController.navigate(Screen.Auth.route)
-                }) { Icon(Icons.Default.Add, null) }
+                if (currentRoute == Screen.Home.route || currentRoute == Screen.Shop.route) {
+                    FloatingActionButton(onClick = {
+                        val isSignedIn = AppGraph.repo.currentUser != null
+                        if (isSignedIn) navController.navigate(Screen.CreatePost.route)
+                        else navController.navigate(Screen.Auth.route)
+                    }) { Icon(Icons.Default.Add, null) }
+                }
             },
             bottomBar = {
                 BottomBar(
@@ -120,7 +134,25 @@ fun MainScaffold() {
                     )
                 }
                 composable(Screen.Shop.route) {
-                    ShopScreen(onOpenDetails = { id -> navController.navigate("details/$id") })
+                    val vm: ShopViewModel = viewModel(factory = ShopVmFactory(AppGraph.repo))
+                    ShopScreen(
+                        vm = vm,
+                        onOpenDetails = { id -> navController.navigate("details/$id") },
+                        onContactSeller = { sellerId ->
+                            // Navigate to chat
+                            navController.navigate("chat_detail/$sellerId")
+                        }
+                    )
+                }
+                composable(Screen.ChatDetail.pattern) { entry ->
+                    val sellerId = entry.arguments?.getString("sellerId") ?: ""
+
+                    // We hide the bottom bar for chat usually, but for PoC simple is fine.
+                    // The ChatDetailScreen handles its own UI.
+                    ChatDetailScreen(
+                        sellerId = sellerId,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
                 composable(Screen.Chat.route) { ChatScreen() }
 
@@ -149,6 +181,42 @@ fun MainScaffold() {
                     )
                     DetailsScreen(vm)
                 }
+                composable(Screen.Archive.route) {
+                    val vm: com.donchik.akadeska.presentation.archive.ArchiveViewModel = viewModel(
+                        factory = com.donchik.akadeska.presentation.archive.ArchiveVmFactory(AppGraph.repo)
+                    )
+                    com.donchik.akadeska.presentation.archive.ArchiveScreen(
+                        vm = vm,
+                        onOpenDetails = { id -> navController.navigate("details/$id") }
+                    )
+                }
+                composable(Screen.Profile.route) {
+                    // If user is not signed in, redirect immediately
+                    if (AppGraph.repo.currentUser == null) {
+                        LaunchedEffect(Unit) {
+                            navController.navigate(Screen.Auth.route) {
+                                popUpTo(Screen.Home.route) { inclusive = false }
+                            }
+                        }
+                    } else {
+                        val vm: com.donchik.akadeska.presentation.profile.ProfileViewModel =
+                            viewModel(
+                                factory = com.donchik.akadeska.presentation.profile.ProfileVmFactory(
+                                    AppGraph.repo
+                                )
+                            )
+                        com.donchik.akadeska.presentation.profile.ProfileScreen(
+                            vm = vm,
+                            onNavigateToAuth = {
+                                // Navigate to Auth and clear backstack so they can't go back
+                                navController.navigate(Screen.Auth.route) {
+                                    popUpTo(0)
+                                }
+                            }
+                        )
+                    }
+                }
+
             }
         }
     }

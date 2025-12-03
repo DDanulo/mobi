@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -19,7 +20,8 @@ import navigation.Screen
 @Composable
 fun DrawerContent(
     isAdmin: Boolean,
-    onOpenAdmin: () -> Unit
+    onOpenAdmin: () -> Unit,
+    onOpenArchive: () -> Unit
 ) {
     ModalDrawerSheet {
         Spacer(Modifier.height(12.dp))
@@ -27,6 +29,14 @@ fun DrawerContent(
             "Menu",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Archive") },
+            selected = false,
+            onClick = onOpenArchive,
+            icon = { Icon(Icons.Default.DateRange, contentDescription = null) }, // You might need to import DateRange or use another icon like 'List'
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
 
         if (isAdmin) {
