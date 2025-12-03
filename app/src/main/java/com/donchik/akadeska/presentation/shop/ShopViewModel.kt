@@ -23,4 +23,11 @@ class ShopViewModel(private val repo: FirebaseRepository) : ViewModel() {
             }
         }
     }
+
+    fun reserveItem(id: String) = viewModelScope.launch {
+        repo.reservePost(id).onFailure { e ->
+            // In a real app, show a Snackbar or Toast
+            println("Reservation failed: ${e.message}")
+        }
+    }
 }

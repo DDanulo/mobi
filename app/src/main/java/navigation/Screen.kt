@@ -15,4 +15,8 @@ sealed class Screen(val route: String) {
     data class Details(val postId: String) : Screen("details/$postId") {
         companion object { const val pattern = "details/{postId}" }
     }
+
+    data class ShopDetails(val postId: String) : Screen("shop_details/$postId") {
+        companion object { const val pattern = "shop_details/{postId}" }
+    }
 }

@@ -20,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.donchik.akadeska.R
 
 @Composable
 fun AdminScreen(vm: AdminViewModel, onBack: () -> Unit) {
@@ -32,7 +34,7 @@ fun AdminScreen(vm: AdminViewModel, onBack: () -> Unit) {
     if (!isAdmin) {
         // guard
         Column(Modifier.fillMaxSize().padding(16.dp)) {
-            Text("No admin access.")
+            stringResource(R.string.no_admin_access)
             Spacer(Modifier.height(8.dp))
             Button(onClick = onBack) { Text("Back") }
         }
@@ -40,7 +42,7 @@ fun AdminScreen(vm: AdminViewModel, onBack: () -> Unit) {
     }
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Pending posts", style = MaterialTheme.typography.headlineSmall)
+        Text(text = stringResource(R.string.pending_posts), style = MaterialTheme.typography.headlineSmall)
         if (loading) { CircularProgressIndicator() }
         if (err != null) { Text(err!!, color = MaterialTheme.colorScheme.error) }
         Spacer(Modifier.height(8.dp))
@@ -51,8 +53,8 @@ fun AdminScreen(vm: AdminViewModel, onBack: () -> Unit) {
                         Text(it.title, style = MaterialTheme.typography.titleMedium)
                         Text(it.type, style = MaterialTheme.typography.labelMedium)
                         Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { vm.approve(it.id) }) { Text("Approve") }
-                            OutlinedButton(onClick = { vm.reject(it.id) }) { Text("Reject") }
+                            Button(onClick = { vm.approve(it.id) }) { stringResource(R.string.btn_approve) }
+                            OutlinedButton(onClick = { vm.reject(it.id) }) { stringResource(R.string.btn_reject) }
                         }
                     }
                 }

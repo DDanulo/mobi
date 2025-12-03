@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.messaging.FirebaseMessaging
+import java.util.Calendar
 
 data class FeedItem(
     val id: String,
@@ -31,7 +33,8 @@ data class ShopItem(
     val description: String,
     val price: Double?,
     val imageUrl: String?,
-    val sellerId: String?
+    val sellerId: String?,
+    val isReserved: Boolean
 )
 
 data class PostDetails(
@@ -40,7 +43,11 @@ data class PostDetails(
     val title: String,
     val body: String,
     val imageUrl: String?,
-    val createdAt: com.google.firebase.Timestamp?
+    val createdAt: com.google.firebase.Timestamp?,
+    val price: Double? = null,
+    val createdBy: String? = null,
+    val isReserved: Boolean = false,
+    val isMine: Boolean = false
 )
 
 fun Query.snapshotsFlow() = callbackFlow {
@@ -66,7 +73,8 @@ fun DocumentReference.snapshotsFlow() = callbackFlow {
 class FirebaseRepository(
     val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val storage: FirebaseStorage,
+    private val messaging: FirebaseMessaging
 ) {
     val currentUser get() = auth.currentUser
 
@@ -80,6 +88,14 @@ class FirebaseRepository(
 
     fun signOut() {
         auth.signOut()
+    }
+
+    fun subscribeToAdminTopic() {
+        messaging.subscribeToTopic("admin_notifications")
+    }
+
+    fun unsubscribeFromAdminTopic() {
+        messaging.unsubscribeFromTopic("admin_notifications")
     }
 
     fun authStateFlow(): kotlinx.coroutines.flow.Flow<Boolean> =
@@ -178,14 +194,21 @@ class FirebaseRepository(
         db.collection("posts").document(id)
             .snapshotsFlow()
             .map { d ->
-                if (!d.exists()) null else PostDetails(
-                    id = d.id,
-                    type = (d.getString("type") ?: "").uppercase(),
-                    title = d.getString("title") ?: "",
-                    body = d.getString("body") ?: "",
-                    imageUrl = d.getString("imageUrl"),
-                    createdAt = d.getTimestamp("createdAt")
-                )
+                if (!d.exists()) null else {
+                    val creator = d.getString("createdBy")
+                    PostDetails(
+                        id = d.id,
+                        type = (d.getString("type") ?: "").uppercase(),
+                        title = d.getString("title") ?: "",
+                        body = d.getString("body") ?: "",
+                        imageUrl = d.getString("imageUrl"),
+                        createdAt = d.getTimestamp("createdAt"),
+                        price = d.getDouble("price"),
+                        createdBy = creator,
+                        isReserved = isItemReserved(d), // <--- CHECK RESERVATION
+                        isMine = creator == auth.currentUser?.uid // <--- CHECK OWNERSHIP
+                    )
+                }
             }
     private fun getCutoffTimestamp(): Timestamp {
         val calendar = java.util.Calendar.getInstance()
@@ -242,7 +265,6 @@ class FirebaseRepository(
     }
 
     fun observeShopListings(): Flow<List<ShopItem>> {
-        // We filter by approved status and type LISTING
         return db.collection("posts")
             .whereEqualTo("status", "approved")
             .whereEqualTo("type", "LISTING")
@@ -256,11 +278,47 @@ class FirebaseRepository(
                         description = d.getString("body") ?: "",
                         price = d.getDouble("price"),
                         imageUrl = d.getString("imageUrl"),
-                        sellerId = d.getString("createdBy")
+                        sellerId = d.getString("createdBy"),
+                        isReserved = isItemReserved(d) // <--- CHECK RESERVATION
                     )
                 }
             }
     }
 
+    suspend fun reservePost(postId: String): Result<Unit> = runCatching {
+        val uid = auth.currentUser?.uid ?: error("Not signed in")
+
+        // 1 hour from now
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.HOUR_OF_DAY, 1)
+        val oneHourLater = Timestamp(cal.time)
+
+        // Transaction to prevent double booking
+        db.runTransaction { transaction ->
+            val docRef = db.collection("posts").document(postId)
+            val snapshot = transaction.get(docRef)
+
+            // Check if already reserved
+            val reservedUntil = snapshot.getTimestamp("reservedUntil")
+            if (reservedUntil != null && reservedUntil.seconds > Timestamp.now().seconds) {
+                throw Exception("Item is already reserved!")
+            }
+
+            transaction.update(docRef, mapOf(
+                "reservedUntil" to oneHourLater,
+                "reservedBy" to uid
+            ))
+        }.await()
+    }
+
+    suspend fun deletePost(postId: String): Result<Unit> = runCatching {
+        db.collection("posts").document(postId).delete().await()
+    }
+
+    // Helper to check reservation status
+    private fun isItemReserved(doc: com.google.firebase.firestore.DocumentSnapshot): Boolean {
+        val reservedUntil = doc.getTimestamp("reservedUntil") ?: return false
+        return reservedUntil.seconds > Timestamp.now().seconds
+    }
 
 }

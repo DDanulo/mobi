@@ -1,7 +1,9 @@
 package com.donchik.akadeska.presentation.createpost
 
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.donchik.akadeska.R
 import com.donchik.akadeska.data.FirebaseRepository
 import com.donchik.akadeska.domain.model.PostType
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +36,7 @@ class CreatePostViewModel(
 
     fun submit() = viewModelScope.launch {
         val s = state.value
-        if (s.title.isBlank()) { state.update { it.copy(error = "Title required") }; return@launch }
+        if (s.title.isBlank()) { state.update { it.copy(error = R.string.no_descriptions.toString()) }; return@launch }
         if (s.type == PostType.LISTING && s.price.toDoubleOrNull() == null) {
             state.update { it.copy(error = "Price required") }; return@launch
         }

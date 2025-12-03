@@ -50,36 +50,6 @@ fun HomeScreen(
     }
 }
 
-//
-//@Composable
-//fun EventCard(
-//    event: EventUi,
-//    onClick: () -> Unit = {}
-//) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable { },
-//        elevation = CardDefaults.cardElevation(6.dp),
-//        onClick = onClick
-//    ) {
-//        Column {
-//            Image(
-//                painter = painterResource(id = event.imageRes),
-//                contentDescription = null,
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(180.dp)
-//                    .clip(MaterialTheme.shapes.medium)
-//            )
-//            Text(
-//                text = event.title,
-//                modifier = Modifier.padding(12.dp)
-//            )
-//        }
-//    }
-//}
 @Composable
 fun EventCardFromUrl(
     title: String,

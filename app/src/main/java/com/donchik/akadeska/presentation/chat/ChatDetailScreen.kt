@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.donchik.akadeska.R
 
 // Simple mock model for the UI
 data class MockMessage(
@@ -36,9 +38,9 @@ fun ChatDetailScreen(
     var messageText by remember { mutableStateOf("") }
     val messages = remember { mutableStateListOf<MockMessage>(
         // Mock initial data to match your screenshot style
-        MockMessage("1", "Messsssssage", false, "Seller"),
-        MockMessage("2", "Messssssssssssssssssssssssssage", false, "Seller"),
-        MockMessage("3", "Messsssssssssssssssssssssssssssssssssssssssssssssssssssssssage", false, "Seller")
+        MockMessage("1", "Hello", false, "Seller"),
+        MockMessage("2", "How can I help you?", false, "Seller"),
+        MockMessage("3", "67", false, "Seller")
     ) }
 
     Column(
@@ -62,7 +64,8 @@ fun ChatDetailScreen(
         // --- Bottom Input Bar ---
         Surface(
             tonalElevation = 2.dp,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            color =  Color.White
         ) {
             Row(
                 modifier = Modifier
@@ -73,7 +76,7 @@ fun ChatDetailScreen(
                 OutlinedTextField(
                     value = messageText,
                     onValueChange = { messageText = it },
-                    placeholder = { Text("Napisz wiadomość") },
+                    placeholder = { Text(stringResource(R.string.chat_placeholder)) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(

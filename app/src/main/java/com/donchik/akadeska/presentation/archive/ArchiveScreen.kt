@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.donchik.akadeska.R
 import com.donchik.akadeska.presentation.home.EventCardFromUrl
 
 @Composable
@@ -38,7 +40,7 @@ fun ArchiveScreen(
 
         if (!state.loading && state.items.isEmpty()) {
             item {
-                Text("No archived events found.", style = MaterialTheme.typography.bodyLarge)
+                Text(text = stringResource(R.string.no_archived_events), style = MaterialTheme.typography.bodyLarge)
             }
         }
 

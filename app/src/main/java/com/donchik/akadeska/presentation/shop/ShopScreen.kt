@@ -1,4 +1,5 @@
 package com.donchik.akadeska.presentation.shop
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,13 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.donchik.akadeska.R
 import com.donchik.akadeska.data.ShopItem
-import com.donchik.akadeska.presentation.shop.ShopViewModel
 
 @Composable
 fun ShopScreen(
@@ -43,61 +45,85 @@ fun ShopScreen(
         }
 
         if (!state.loading && state.items.isEmpty()) {
-            item { Text("Brak ogłoszeń.") }
+            item { Text(stringResource(R.string.no_listings)) }
         }
 
         items(state.items) { item ->
-            ShopItemCard(item, onOpenDetails, onContactSeller)
+            // Pass the reserve function from VM
+            ShopItemCard(
+                item = item,
+                onOpenDetails = onOpenDetails,
+                onContactSeller = onContactSeller,
+                onReserve = { vm.reserveItem(item.id) }
+            )
         }
 
         item {
-            Spacer(modifier = Modifier.height(70.dp)) // space above bottom bar
+            Spacer(modifier = Modifier.height(70.dp))
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShopItemCard(item: ShopItem,
-                 onOpenDetails: (String) -> Unit,
-                 onContactSeller: (String) -> Unit ) {
+fun ShopItemCard(
+    item: ShopItem,
+    onOpenDetails: (String) -> Unit,
+    onContactSeller: (String) -> Unit,
+    onReserve: () -> Unit
+) {
     Card(
+        onClick = { onOpenDetails(item.id) },
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White) // White background as in screenshot
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                // 1. Image (70x70dp placeholder or actual image)
+                // Image
                 if (item.imageUrl != null) {
                     Image(
                         painter = rememberAsyncImagePainter(item.imageUrl),
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(70.dp)
-                            .clip(RoundedCornerShape(8.dp)),
+                        modifier = Modifier.size(70.dp).clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    Box(
-                        modifier = Modifier
-                            .size(70.dp)
-                            .background(Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
-                    )
+                    Box(modifier = Modifier.size(70.dp).background(Color(0xFFE0E0E0), RoundedCornerShape(8.dp)))
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // 2. Text Content
+                // Content
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = item.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        // RESERVED BADGE
+                        if (item.isReserved) {
+                            Surface(
+                                color = Color(0xFFFF9800), // Orange
+                                shape = RoundedCornerShape(4.dp),
+                                modifier = Modifier.padding(start = 4.dp)
+                            ) {
+                                Text(
+                                    "RESERVED",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                    }
                     Text(
                         text = item.description,
                         style = MaterialTheme.typography.bodySmall,
@@ -116,33 +142,37 @@ fun ShopItemCard(item: ShopItem,
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // 3. Buttons Row
+            // Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = {
-                        // TRIGGER THE CHAT
-                        item.sellerId?.let { onContactSeller(it) }
-                    },
+                    onClick = { item.sellerId?.let { onContactSeller(it) } },
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text("Kontakt", fontSize = 12.sp)
+                    Text(stringResource(R.string.btn_contact), fontSize = 12.sp)
                 }
 
+                // Reserve Button
                 Button(
-                    onClick = { /* Placeholder */ },
+                    onClick = onReserve,
+                    // Gray out if reserved
+                    enabled = !item.isReserved,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFC62828) // Deep Red color
+                        containerColor = if (item.isReserved) Color.Gray else Color(0xFFC62828)
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text("Szybka rezerwacja", fontSize = 12.sp, maxLines = 1)
+                    Text(
+                        if (item.isReserved) "Reserved" else stringResource(R.string.btn_reservation),
+                        fontSize = 12.sp,
+                        maxLines = 1
+                    )
                 }
             }
         }

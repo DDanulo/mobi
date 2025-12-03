@@ -12,7 +12,16 @@ class AdminGateViewModel(private val repo: FirebaseRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            repo.isAdminFlow().collect { isAdmin.value = it }
+            repo.isAdminFlow().collect { isUserAdmin ->
+                isAdmin.value = isUserAdmin
+
+                // Logic: If Admin, subscribe. If not, unsubscribe.
+                if (isUserAdmin) {
+                    repo.subscribeToAdminTopic()
+                } else {
+                    repo.unsubscribeFromAdminTopic()
+                }
+            }
         }
     }
 }

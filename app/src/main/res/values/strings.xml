@@ -1,3 +1,54 @@
 <resources>
     <string name="app_name">AkaDeska</string>
+
+    <!-- Navigation & Drawer -->
+    <string name="nav_home">Home</string>
+    <string name="nav_shop">Shop</string>
+    <string name="nav_chat">Chat</string>
+    <string name="menu_title">Menu</string>
+    <string name="menu_admin">Admin panel – approvals</string>
+    <string name="menu_archive">Archive</string>
+    <string name="profile">Profile</string>
+    <string name="sign_out">Sign out</string>
+
+    <!-- Auth -->
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="no_account">No account? Sign up</string>
+    <string name="have_account">Have an account? Sign in</string>
+    <string name="update_name">Update name</string>
+    <string name="error_email_pass">Email and min. 6 chars password required</string>
+
+    <!-- Create Post -->
+    <string name="cp_type">Type</string>
+    <string name="cp_title">Title</string>
+    <string name="cp_body">Body</string>
+    <string name="cp_price">Price (zł)</string>
+    <string name="cp_add_image">Add image</string>
+    <string name="cp_change_image">Change image</string>
+    <string name="cp_saving">Saving…</string>
+    <string name="cp_publish">Publish (pending)</string>
+    <string name="error_title_req">Title required</string>
+    <string name="error_price_req">Price required</string>
+
+    <!-- Shop & Archive -->
+    <string name="no_listings">No listings found.</string>
+    <string name="btn_contact">Contact</string>
+    <string name="btn_reservation">Quick reservation</string>
+    <string name="no_archived_events">No archived events found.</string>
+
+    <!-- Chat -->
+    <string name="chat_placeholder">Write a message</string>
+
+    <!-- Admin -->
+    <string name="no_admin_access">No admin access.</string>
+    <string name="btn_back">Back</string>
+    <string name="pending_posts">Pending posts</string>
+    <string name="btn_approve">Approve</string>
+    <string name="btn_reject">Reject</string>
+    <string name="display_name">Display name</string>
+    <string name="no_descriptions">No descriptions</string>
 </resources>

@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage.ktx)
+    implementation("com.google.firebase:firebase-messaging:23.4.0")
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

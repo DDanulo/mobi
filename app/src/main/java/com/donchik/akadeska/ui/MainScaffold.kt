@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -46,6 +47,10 @@ import com.donchik.akadeska.presentation.shop.ShopViewModel
 import com.donchik.akadeska.presentation.shop.ShopVmFactory
 import kotlinx.coroutines.launch
 import navigation.Screen
+import com.donchik.akadeska.R
+import com.donchik.akadeska.presentation.shopItemDetail.ShopDetailsScreen
+import com.donchik.akadeska.presentation.shopItemDetail.ShopDetailsViewModel
+import com.donchik.akadeska.presentation.shopItemDetail.ShopDetailsVmFactory
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,12 +84,12 @@ fun MainScaffold() {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("AkaDeska") },
+                    title = { Text(stringResource(R.string.app_name)) },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch { drawerState.open() }
                         }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu_title))
                         }
                     },
                     actions = {
@@ -94,7 +99,7 @@ fun MainScaffold() {
                         IconButton(onClick = {
                             navController.navigate(Screen.Profile.route)
                         }) {
-                            Icon(Icons.Default.Person, contentDescription = "Profile")
+                            Icon(Icons.Default.Person, contentDescription = stringResource(R.string.profile))
                         }
                     }
                 )
@@ -137,11 +142,25 @@ fun MainScaffold() {
                     val vm: ShopViewModel = viewModel(factory = ShopVmFactory(AppGraph.repo))
                     ShopScreen(
                         vm = vm,
-                        onOpenDetails = { id -> navController.navigate("details/$id") },
+                        onOpenDetails = { id -> navController.navigate("shop_details/$id") },
                         onContactSeller = { sellerId ->
-                            // Navigate to chat
                             navController.navigate("chat_detail/$sellerId")
                         }
+                    )
+                }
+                composable(Screen.ShopDetails.pattern) { entry ->
+                    val postId = entry.arguments?.getString("postId")!!
+                    val vm: ShopDetailsViewModel = viewModel(
+                        factory = ShopDetailsVmFactory(AppGraph.repo, postId)
+                    )
+                    ShopDetailsScreen(
+                        vm = vm,
+                        onContactSeller = { sellerId ->
+                            navController.navigate("chat_detail/$sellerId")
+                        },
+                        onBack = {
+                            navController.popBackStack()
+                        } // <--- Handle deletion exit
                     )
                 }
                 composable(Screen.ChatDetail.pattern) { entry ->
@@ -221,53 +240,7 @@ fun MainScaffold() {
         }
     }
 }
-//@Composable
-//fun NavBar(
-//    selectedTab: BottomTab,
-//    onTabSelected: (BottomTab) -> Unit
-//) {
-//    NavigationBar (containerColor = MaterialTheme.colorScheme.secondary) {
-//        NavigationBarItem(
-//            selected = selectedTab == BottomTab.HOME,
-//            onClick = { onTabSelected(BottomTab.HOME) },
-//            icon = { Icon(Icons.Outlined.Home, null) },
-//            label = { Text("Home") },
-//            colors = NavigationBarItemDefaults.colors(
-//                indicatorColor = MaterialTheme.colorScheme.primary,
-//                selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-//                selectedTextColor = MaterialTheme.colorScheme.onSecondary,
-//                unselectedIconColor = MaterialTheme.colorScheme.onSecondary,
-//                unselectedTextColor = MaterialTheme.colorScheme.onSecondary
-//            )
-//        )
-//        NavigationBarItem(
-//            selected = selectedTab == BottomTab.SHOP,
-//            onClick = { onTabSelected(BottomTab.SHOP) },
-//            icon = { Icon(Icons.Outlined.ShoppingCart, null) },
-//            label = { Text("Shop") },
-//            colors = NavigationBarItemDefaults.colors(
-//                indicatorColor = MaterialTheme.colorScheme.primary,
-//                selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-//                selectedTextColor = MaterialTheme.colorScheme.onSecondary,
-//                unselectedIconColor = MaterialTheme.colorScheme.onSecondary,
-//                unselectedTextColor = MaterialTheme.colorScheme.onSecondary
-//            )
-//        )
-//        NavigationBarItem(
-//            selected = selectedTab == BottomTab.CHAT,
-//            onClick = { onTabSelected(BottomTab.CHAT) },
-//            icon = { Icon(Icons.AutoMirrored.Outlined.Chat, null) },
-//            label = { Text("Chat") },
-//            colors = NavigationBarItemDefaults.colors(
-//                indicatorColor = MaterialTheme.colorScheme.primary,
-//                selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-//                selectedTextColor = MaterialTheme.colorScheme.onSecondary,
-//                unselectedIconColor = MaterialTheme.colorScheme.onSecondary,
-//                unselectedTextColor = MaterialTheme.colorScheme.onSecondary
-//            )
-//        )
-//    }
-//}
+
 @Composable
 private fun BottomBar(currentRoute: String?, onSelect: (String) -> Unit) {
     NavigationBar(containerColor = MaterialTheme.colorScheme.secondary) {
@@ -287,15 +260,8 @@ private fun BottomBar(currentRoute: String?, onSelect: (String) -> Unit) {
                 )
             )
         }
-        item(Screen.Home.route, Icons.Outlined.Home, "Home")
-        item(Screen.Shop.route, Icons.Outlined.ShoppingCart, "Shop")
-        item(Screen.Chat.route, Icons.AutoMirrored.Outlined.Chat, "Chat")
+        item(Screen.Home.route, Icons.Outlined.Home, stringResource(R.string.nav_home))
+        item(Screen.Shop.route, Icons.Outlined.ShoppingCart, stringResource(R.string.nav_shop))
+        item(Screen.Chat.route, Icons.AutoMirrored.Outlined.Chat, stringResource(R.string.nav_chat))
     }
 }
-//@Preview
-//@Composable
-//fun NavBarPreview() {
-//    NavBar(
-//        selectedTab = BottomTab.HOME,
-//        onTabSelected = {})
-//}

@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">AkaDeska</string>
+
+    <!-- Navigation & Drawer -->
+    <string name="nav_home">Główna</string>
+    <string name="nav_shop">Sklep</string>
+    <string name="nav_chat">Czat</string>
+    <string name="menu_title">Menu</string>
+    <string name="menu_admin">Panel Admina</string>
+    <string name="menu_archive">Archiwum</string>
+    <string name="profile">Profil</string>
+    <string name="sign_out">Wyloguj</string>
+
+    <!-- Auth -->
+    <string name="sign_in">Zaloguj się</string>
+    <string name="sign_up">Zarejestruj się</string>
+    <string name="email">Email</string>
+    <string name="password">Hasło</string>
+    <string name="please_wait">Proszę czekać…</string>
+    <string name="no_account">Nie masz konta? Zarejestruj</string>
+    <string name="have_account">Masz konto? Zaloguj</string>
+    <string name="update_name">Zmień imię</string>
+    <string name="error_email_pass">Email i hasło min. 6 znaków</string>
+
+    <!-- Create Post -->
+    <string name="cp_type">Typ</string>
+    <string name="cp_title">Tytuł</string>
+    <string name="cp_body">Treść</string>
+    <string name="cp_price">Cena (zł)</string>
+    <string name="cp_add_image">Dodaj zdjęcie</string>
+    <string name="cp_change_image">Zmień zdjęcie</string>
+    <string name="cp_saving">Zapisywanie…</string>
+    <string name="cp_publish">Opublikuj</string>
+    <string name="error_title_req">Tytuł wymagany</string>
+    <string name="error_price_req">Cena wymagana</string>
+
+    <!-- Shop & Archive -->
+    <string name="no_listings">Brak ogłoszeń.</string>
+    <string name="btn_contact">Kontakt</string>
+    <string name="btn_reservation">Szybka rezerwacja</string>
+    <string name="no_archived_events">Brak wydarzeń w archiwum.</string>
+
+    <!-- Chat -->
+    <string name="chat_placeholder">Napisz wiadomość</string>
+
+    <!-- Admin -->
+    <string name="no_admin_access">Brak uprawnień administratora.</string>
+    <string name="btn_back">Wróć</string>
+    <string name="pending_posts">Oczekujące posty</string>
+    <string name="btn_approve">Zatwierdź</string>
+    <string name="btn_reject">Odrzuć</string>
+    <string name="display_name">Pokaż imię</string>
+    <string name="no_descriptions">Brak opisu</string>
+</resources>

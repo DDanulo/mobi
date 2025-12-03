@@ -15,7 +15,9 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.donchik.akadeska.R
 import navigation.Screen
 @Composable
 fun DrawerContent(
@@ -26,13 +28,13 @@ fun DrawerContent(
     ModalDrawerSheet {
         Spacer(Modifier.height(12.dp))
         Text(
-            "Menu",
+            text = stringResource(R.string.menu_title),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
         NavigationDrawerItem(
-            label = { Text("Archive") },
+            label = { Text(stringResource(R.string.menu_archive)) },
             selected = false,
             onClick = onOpenArchive,
             icon = { Icon(Icons.Default.DateRange, contentDescription = null) }, // You might need to import DateRange or use another icon like 'List'
@@ -41,7 +43,7 @@ fun DrawerContent(
 
         if (isAdmin) {
             NavigationDrawerItem(
-                label = { Text("Admin panel – approvals") },
+                label = { Text(stringResource(R.string.menu_admin)) },
                 selected = false,
                 onClick = onOpenAdmin,
                 icon = { Icon(Icons.Default.Verified, contentDescription = null) },

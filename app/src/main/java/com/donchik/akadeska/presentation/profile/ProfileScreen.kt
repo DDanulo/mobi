@@ -9,7 +9,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.donchik.akadeska.R
 
 @Composable
 fun ProfileScreen(
@@ -62,7 +64,7 @@ fun ProfileScreen(
         OutlinedTextField(
             value = state.email,
             onValueChange = {},
-            label = { Text("Email") },
+            label = { Text(stringResource(R.string.email)) },
             readOnly = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -73,7 +75,7 @@ fun ProfileScreen(
         OutlinedTextField(
             value = nameInput,
             onValueChange = { nameInput = it },
-            label = { Text("Display Name") },
+            label = { Text(stringResource(R.string.display_name)) },
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
                 if (state.loading) {
@@ -90,7 +92,7 @@ fun ProfileScreen(
             enabled = !state.loading && nameInput != state.displayName,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Update Name")
+            Text(stringResource(R.string.update_name))
         }
 
         if (state.error != null) {
@@ -106,7 +108,7 @@ fun ProfileScreen(
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Sign Out")
+            Text(stringResource(R.string.sign_out))
         }
     }
 }

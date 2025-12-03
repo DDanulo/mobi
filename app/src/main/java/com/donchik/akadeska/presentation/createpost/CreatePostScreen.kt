@@ -12,8 +12,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.donchik.akadeska.R
 import com.donchik.akadeska.domain.model.PostType
 import java.io.InputStream
 
@@ -51,7 +53,7 @@ fun CreatePostScreen(
                 value = state.type.name,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Type") },
+                label = { stringResource(R.string.cp_type) },
                 modifier = Modifier.menuAnchor().fillMaxWidth()
             )
             ExposedDropdownMenu(expanded, onDismissRequest = { expanded = false }) {
@@ -67,25 +69,25 @@ fun CreatePostScreen(
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = state.title, onValueChange = vm::setTitle,
-            label = { Text("Title") }, modifier = Modifier.fillMaxWidth()
+            label = { Text(stringResource(R.string.cp_title))}, modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = state.body, onValueChange = vm::setBody,
-            label = { Text("Body") }, modifier = Modifier.fillMaxWidth(), minLines = 4
+            label = { Text(stringResource(R.string.cp_body)) }, modifier = Modifier.fillMaxWidth(), minLines = 4
         )
         if (state.type == PostType.LISTING) {
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = state.price, onValueChange = vm::setPrice,
-                label = { Text("Price (zł)") }, modifier = Modifier.fillMaxWidth()
+                label = { Text(stringResource(R.string.cp_price)) }, modifier = Modifier.fillMaxWidth()
             )
         }
 
         Spacer(Modifier.height(12.dp))
         Button(onClick = {
             pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-        }) { Text(if (imageUri == null) "Add image" else "Change image") }
+        }) {Text(stringResource(if (imageUri == null) R.string.cp_add_image else R.string.cp_change_image )) }
 
         imageUri?.let {
             Spacer(Modifier.height(8.dp))
@@ -109,6 +111,7 @@ fun CreatePostScreen(
             onClick = vm::submit,
             enabled = !state.loading,
             modifier = Modifier.fillMaxWidth()
-        ) { Text(if (state.loading) "Saving..." else "Publish (pending)") }
+        ) { Text(stringResource(if (imageUri == null) R.string.cp_publish else R.string.cp_saving ))
+        }
     }
 }

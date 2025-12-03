@@ -7,8 +7,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.donchik.akadeska.R
 
 @Composable
 fun DetailsScreen(vm: DetailsViewModel) {
@@ -42,7 +44,7 @@ fun DetailsScreen(vm: DetailsViewModel) {
                     Text(post.title, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        post.body.ifBlank { "Brak opisu." },
+                        post.body.ifBlank { stringResource(R.string.no_descriptions) },
                         style = MaterialTheme.typography.bodyMedium,
                         lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
                     )
