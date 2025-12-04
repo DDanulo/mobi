@@ -40,6 +40,11 @@ class ShopDetailsViewModel(
         }
     }
 
+    fun cancelReservation() = viewModelScope.launch {
+        repo.cancelReservation(postId).onFailure { e ->
+            state.update { it.copy(error = e.message) }
+        }
+    }
     fun deleteItem() = viewModelScope.launch {
         repo.deletePost(postId)
             .onSuccess {

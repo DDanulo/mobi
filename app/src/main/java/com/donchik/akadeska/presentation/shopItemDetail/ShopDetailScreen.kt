@@ -123,13 +123,24 @@ fun ShopDetailsScreen(
         }
 
         // --- Bottom Buttons ---
-        Surface(tonalElevation = 8.dp, shadowElevation = 8.dp) {
+        Surface(tonalElevation = 8.dp, shadowElevation = 8.dp,
+            color = Color.White ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // If I am the seller: Show Delete button only
                 if (item.isMine) {
+                    if (item.isReserved) {
+                        Button(
+                            onClick = { vm.cancelReservation() },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA000)), // Orange/Amber
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Unlock", fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
                     Button(
                         onClick = { vm.deleteItem() },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
@@ -156,19 +167,30 @@ fun ShopDetailsScreen(
                     }
 
 
-                    Button(
-                        onClick = { vm.reserveItem() },
-                        enabled = !item.isReserved,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (item.isReserved) Color.Gray else Color(0xFFC62828)
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f).height(48.dp)
-                    ) {
-                        Text(
-                            if (item.isReserved) "Reserved" else stringResource(R.string.btn_reservation),
-                            fontWeight = FontWeight.SemiBold
-                        )
+                    if (item.isReservedByMe) {
+                        Button(
+                            onClick = { vm.cancelReservation() },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA000)),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f).height(48.dp)
+                        ) {
+                            Text("Cancel", fontWeight = FontWeight.SemiBold)
+                        }
+                    } else {
+                        Button(
+                            onClick = { vm.reserveItem() },
+                            enabled = !item.isReserved,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (item.isReserved) Color.Gray else Color(0xFFC62828)
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f).height(48.dp)
+                        ) {
+                            Text(
+                                if (item.isReserved) "Reserved" else stringResource(R.string.btn_reservation),
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
             }

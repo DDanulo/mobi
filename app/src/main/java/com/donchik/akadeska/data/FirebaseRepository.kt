@@ -299,9 +299,41 @@ class FirebaseRepository(
             }
     }
 
+    suspend fun cancelReservation(postId: String): Result<Unit> = runCatching {
+        val uid = auth.currentUser?.uid ?: error("Not signed in")
+        val docRef = db.collection("posts").document(postId)
+
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(docRef)
+
+            val creator = snapshot.getString("createdBy")
+            val reserver = snapshot.getString("reservedBy")
+
+            // Allow Seller OR the person who reserved it to cancel
+            if (creator != uid && reserver != uid) {
+                throw Exception("Permission denied: You cannot cancel this reservation.")
+            }
+
+            // Remove reservation fields
+            transaction.update(docRef, mapOf(
+                "reservedUntil" to null,
+                "reservedBy" to null
+            ))
+        }.await()
+    }
     suspend fun reservePost(postId: String): Result<Unit> = runCatching {
         val uid = auth.currentUser?.uid ?: error("Not signed in")
 
+        val activeReservations = db.collection("posts")
+            .whereEqualTo("reservedBy", uid)
+            .whereGreaterThan("reservedUntil", Timestamp.now())
+            .get()
+            .await()
+
+        if (!activeReservations.isEmpty) {
+            // If the list is not empty, the user already has a reservation
+            throw Exception("You can only reserve 1 item at a time!")
+        }
         // 1 hour from now
         val cal = Calendar.getInstance()
         cal.add(Calendar.HOUR_OF_DAY, 1)
