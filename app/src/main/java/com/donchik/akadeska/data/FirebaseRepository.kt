@@ -34,7 +34,8 @@ data class ShopItem(
     val price: Double?,
     val imageUrl: String?,
     val sellerId: String?,
-    val isReserved: Boolean
+    val isReserved: Boolean,
+    val isReservedByMe: Boolean
 )
 
 data class PostDetails(
@@ -47,7 +48,8 @@ data class PostDetails(
     val price: Double? = null,
     val createdBy: String? = null,
     val isReserved: Boolean = false,
-    val isMine: Boolean = false
+    val isMine: Boolean = false,
+    val isReservedByMe: Boolean
 )
 
 fun Query.snapshotsFlow() = callbackFlow {
@@ -196,6 +198,11 @@ class FirebaseRepository(
             .map { d ->
                 if (!d.exists()) null else {
                     val creator = d.getString("createdBy")
+                    val isRes = isItemReserved(d)
+                    // Check if reserved by CURRENT user
+                    val reservedBy = d.getString("reservedBy")
+                    val isResByMe = isRes && reservedBy == auth.currentUser?.uid
+
                     PostDetails(
                         id = d.id,
                         type = (d.getString("type") ?: "").uppercase(),
@@ -205,8 +212,9 @@ class FirebaseRepository(
                         createdAt = d.getTimestamp("createdAt"),
                         price = d.getDouble("price"),
                         createdBy = creator,
-                        isReserved = isItemReserved(d), // <--- CHECK RESERVATION
-                        isMine = creator == auth.currentUser?.uid // <--- CHECK OWNERSHIP
+                        isReserved = isRes,
+                        isMine = creator == auth.currentUser?.uid,
+                        isReservedByMe = isResByMe // <--- MAP IT
                     )
                 }
             }
@@ -272,6 +280,11 @@ class FirebaseRepository(
             .snapshotsFlow()
             .map { qs ->
                 qs.documents.map { d ->
+                    val isRes = isItemReserved(d)
+                    // Check if reserved by CURRENT user
+                    val reservedBy = d.getString("reservedBy")
+                    val isResByMe = isRes && reservedBy == auth.currentUser?.uid
+
                     ShopItem(
                         id = d.id,
                         title = d.getString("title") ?: "",
@@ -279,7 +292,8 @@ class FirebaseRepository(
                         price = d.getDouble("price"),
                         imageUrl = d.getString("imageUrl"),
                         sellerId = d.getString("createdBy"),
-                        isReserved = isItemReserved(d) // <--- CHECK RESERVATION
+                        isReserved = isRes,
+                        isReservedByMe = isResByMe // <--- MAP IT
                     )
                 }
             }

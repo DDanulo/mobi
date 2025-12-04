@@ -140,15 +140,21 @@ fun ShopDetailsScreen(
                     }
                 } else {
                     // If I am a buyer: Show Contact & Reserve
+
+                    // LOGIC: Enabled if NOT reserved, OR if reserved by ME
+                    val canContact = !item.isReserved || item.isReservedByMe
+
                     OutlinedButton(
                         onClick = { item.createdBy?.let { onContactSeller(it) } },
+                        enabled = canContact, // <--- APPLY LOGIC
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f).height(48.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black)
+                        border = if (canContact) androidx.compose.foundation.BorderStroke(1.dp, Color.Black) else null
                     ) {
                         Text(stringResource(R.string.btn_contact), fontWeight = FontWeight.SemiBold)
                     }
+
 
                     Button(
                         onClick = { vm.reserveItem() },

@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
@@ -23,15 +26,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.donchik.akadeska.R
 import navigation.Screen
 @Composable
 fun DrawerContent(
     isAdmin: Boolean,
-    onOpenAdmin: () -> Unit,
+    fontScale: Float,
     notificationsEnabled: Boolean,
     onToggleNotifications: (Boolean) -> Unit,
+    onChangeFontScale: (Boolean) -> Unit,
+    onOpenAdmin: () -> Unit,
     onOpenArchive: () -> Unit
 ) {
     ModalDrawerSheet {
@@ -83,6 +89,45 @@ fun DrawerContent(
                 checked = notificationsEnabled,
                 onCheckedChange = onToggleNotifications
             )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 28.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Using a generic icon or text for "Text Size"
+                Text("A", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "Text Size",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Decrease Button
+                IconButton(onClick = { onChangeFontScale(false) }) {
+                    // Simple text representation for Minus
+                    Text("-", style = MaterialTheme.typography.headlineSmall)
+                }
+
+                // Display current % (e.g. 1.0 -> 100%)
+                Text(
+                    text = "${(fontScale * 100).toInt()}%",
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.width(40.dp).wrapContentWidth(Alignment.CenterHorizontally)
+                )
+
+                // Increase Button
+                IconButton(onClick = { onChangeFontScale(true) }) {
+                    Icon(Icons.Default.Add, contentDescription = "Increase font")
+                }
+            }
         }
         // Add other optional items here (settings, about, etc.)
     }

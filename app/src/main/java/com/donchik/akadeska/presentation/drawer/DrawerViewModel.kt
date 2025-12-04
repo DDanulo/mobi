@@ -20,6 +20,7 @@ class DrawerViewModel(
     // State
     val isAdmin = MutableStateFlow(false)
     val areNotificationsEnabled = MutableStateFlow(prefs.getBoolean("notifications_enabled", true))
+    val fontScale = MutableStateFlow(prefs.getFloat("app_font_scale", 1.0f))
 
     init {
         // 1. Monitor Admin Status
@@ -49,6 +50,24 @@ class DrawerViewModel(
             // Disable ALL topics
             repo.unsubscribeFromTopic("general_announcements")
             repo.unsubscribeFromTopic("admin_notifications")
+        }
+    }
+
+    fun changeFontScale(increment: Boolean) {
+        val current = fontScale.value
+        // Define limits: Min 0.7f, Max 1.3f
+        val newScale = if (increment) {
+            (current + 0.1f).coerceAtMost(1.3f)
+        } else {
+            (current - 0.1f).coerceAtLeast(0.7f)
+        }
+
+        // Round to 1 decimal place to avoid float precision issues (e.g. 1.0000001)
+        val roundedScale = (newScale * 10).toInt() / 10f
+
+        if (roundedScale != current) {
+            fontScale.value = roundedScale
+            prefs.edit().putFloat("app_font_scale", roundedScale).apply()
         }
     }
 }

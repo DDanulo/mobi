@@ -147,8 +147,11 @@ fun ShopItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                val canContact = !item.isReserved || item.isReservedByMe
+
                 OutlinedButton(
                     onClick = { item.sellerId?.let { onContactSeller(it) } },
+                    enabled = canContact, // <--- APPLY LOGIC
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(0.dp)
